@@ -68,6 +68,27 @@ def backtest_plot(
             returns=test_returns, benchmark_rets=baseline_returns, set_context=False
         )
 
+def backtest_plot_csv(
+    account_value,
+    baseline_csv,
+    value_col_name="account_value",
+):
+    df = deepcopy(account_value)
+    df["date"] = pd.to_datetime(df["date"])
+    test_returns = get_daily_return(df, value_col_name=value_col_name)
+
+    baseline_df = pd.read_csv(baseline_csv, index_col=0)
+
+    baseline_df["date"] = pd.to_datetime(baseline_df["date"], format="%Y-%m-%d")
+    baseline_df = pd.merge(df[["date"]], baseline_df, how="left", on="date")
+    baseline_df = baseline_df.fillna(method="ffill").fillna(method="bfill")
+    baseline_returns = get_daily_return(baseline_df, value_col_name="close")
+
+    with pyfolio.plotting.plotting_context(font_scale=1.1):
+        pyfolio.create_full_tear_sheet(
+            returns=test_returns, benchmark_rets=baseline_returns, set_context=False
+        )
+
 
 def get_baseline(ticker, start, end):
     return YahooDownloader(

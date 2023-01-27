@@ -67,12 +67,14 @@ class FeatureEngineer:
         use_vix=False,
         use_turbulence=False,
         user_defined_feature=False,
+        vix_csv=None,
     ):
         self.use_technical_indicator = use_technical_indicator
         self.tech_indicator_list = tech_indicator_list
         self.use_vix = use_vix
         self.use_turbulence = use_turbulence
         self.user_defined_feature = user_defined_feature
+        self.vix_csv = vix_csv
 
     def preprocess_data(self, df):
         """main method to do the feature engineering
@@ -190,10 +192,14 @@ class FeatureEngineer:
         :return: (df) pandas dataframe
         """
         df = data.copy()
-        df_vix = YahooDownloader(
-            start_date=df.date.min(), end_date=df.date.max(), ticker_list=["^VIX"]
-        ).fetch_data()
-        vix = df_vix[["date", "close"]]
+        if (self.vix_csv != None):
+            df_vix = pd.read_csv(self.vix_csv, index_col=0)
+            vix = df_vix[["date", "close"]]
+        else:
+            df_vix = YahooDownloader(
+                start_date=df.date.min(), end_date=df.date.max(), ticker_list=["^VIX"]
+            ).fetch_data()
+            vix = df_vix[["date", "close"]]
         vix.columns = ["date", "vix"]
 
         df = df.merge(vix, on="date")
