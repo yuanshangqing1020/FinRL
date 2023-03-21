@@ -64,6 +64,13 @@ class AlpacaProcessor:
 
     def clean_data(self, df):
         tic_list = np.unique(df.tic.values)
+        n_tickers = len(tic_list)
+
+        # align start and end dates
+        unique_times = df["timestamp"].unique()
+        for time in unique_times:
+            if len(df[df.timestamp == time].index) < n_tickers:
+                df = df[df.timestamp != time]
 
         trading_days = self.get_trading_days(start=self.start, end=self.end)
         # produce full timestamp index
@@ -300,7 +307,6 @@ class AlpacaProcessor:
     def fetch_latest_data(
         self, ticker_list, time_interval, tech_indicator_list, limit=100
     ) -> pd.DataFrame:
-
         data_df = pd.DataFrame()
         for tic in ticker_list:
             barset = self.api.get_bars([tic], time_interval, limit=limit).df  # [tic]

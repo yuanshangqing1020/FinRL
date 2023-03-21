@@ -127,6 +127,7 @@ class YahooFinanceProcessor:
 
     def clean_data(self, df: pd.DataFrame) -> pd.DataFrame:
         tic_list = np.unique(df.tic.values)
+        NY = "America/New_York"
 
         trading_days = self.get_trading_days(start=self.start, end=self.end)
         # produce full timestamp index
@@ -135,7 +136,7 @@ class YahooFinanceProcessor:
         elif self.time_interval == "1m":
             times = []
             for day in trading_days:
-                NY = "America/New_York"
+                #                NY = "America/New_York"
                 current_time = pd.Timestamp(day + " 09:30:00").tz_localize(NY)
                 for i in range(390):  # 390 minutes in trading day
                     times.append(current_time)
@@ -386,7 +387,6 @@ class YahooFinanceProcessor:
         tech_indicator_list: list[str],
         limit: int = 100,
     ) -> pd.DataFrame:
-
         # Convert FinRL 'standardised' Alpaca time periods to Yahoo format: 1m, 2m, 5m, 15m, 30m, 60m, 90m, 1h, 1d, 5d, 1wk, 1mo, 3mo
         if time_interval == "1Min":
             time_interval = "1m"
